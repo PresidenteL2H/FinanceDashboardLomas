@@ -271,6 +271,85 @@
             background-color: #c0392b; /* Darker red */
             transform: scale(1.05);
         }
+
+        /* FAB icon layout: show funnel and small X */
+        .fab .fab-icon { display: inline-flex; align-items: center; justify-content: center; }
+        .fab .fab-icon svg { width: 18px; height: 18px; fill: white; }
+        .fab .fab-x { display: inline-block; font-size: 14px; line-height: 1; margin-left: 6px; }
+
+        /* Icon buttons for confirm/cancel (compact circular style) */
+        .icon-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .icon-confirm {
+            background: #28a745; /* green */
+            color: white;
+            border-color: rgba(40,167,69,0.95);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(40,167,69,0.12);
+            font-size: 14px;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-cancel {
+            /* High-contrast destructive button: solid red background with white X */
+            background: #dc3545;
+            color: #ffffff;
+            border-color: rgba(220,53,69,0.95);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(220,53,69,0.14);
+            font-size: 14px;
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:focus {
+            outline: 3px solid rgba(13,110,253,0.16);
+            outline-offset: 2px;
+        }
+
+        .icon-confirm:hover, .icon-cancel:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+        }
+
+        .icon-cancel:active {
+            transform: translateY(0) scale(0.99);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        /* Hide per-section icons by default; shown only when pending selections exist */
+        #top-confirm-icon, #top-cancel-icon,
+        #cat-confirm-icon, #cat-cancel-icon,
+        #monthly-confirm-icon, #monthly-cancel-icon,
+        #expenses-confirm-icon, #expenses-cancel-icon,
+        #all-confirm-icon, #all-cancel-icon {
+            display: none;
+        }
+
+        /* Pending selection visual */
+        .pending-selected { background-color: rgba(13,110,253,0.08); }
         
         /* Charts */
         .chart-grid {
@@ -521,6 +600,10 @@
                 bottom: 20px;
             }
         }
+        /* Dashboard header styles */
+        .dashboard-header { display:flex; align-items:flex-start; gap:12px; margin-bottom: 16px; }
+        .dashboard-title { margin:0; font-size:22px; font-weight:800; color:var(--text-primary); letter-spacing:0.2px; }
+        .dashboard-subtitle { margin:6px 0 0 0; color:var(--text-secondary); font-size:13px; }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -536,14 +619,19 @@
                 El reparto de gastos 'Per Home' es un promedio simple (total de gastos / 160) y no considera el coeficiente de participación específico de cada propietario.</span>
             </p>
         </div>
+        <!-- Dashboard title (moved below Nota) -->
+        <div class="dashboard-header">
+            <div style="flex:1;">
+                <h1 id="dashboard-title" class="dashboard-title">Dashboard Financiero</h1>
+                <p id="dashboard-subtitle" class="dashboard-subtitle">Resumen financiero y análisis</p>
+            </div>
+        </div>
 
         <!-- Active Filters Panel -->
         <div id="active-filters" class="active-filters">
-            <strong style="font-size: 13px;">Filtros activos:</strong>
+            <strong style="font-size: 13px;" data-i18n="active_filters">Filtros activos:</strong>
             <div id="filter-badges" style="flex-grow: 1; display: flex; flex-wrap: wrap; gap: 8px;"></div>
-            <button class="clear-all-btn" onclick="window.clearAllFilters()">
-                ✕ Limpiar todos
-            </button>
+            <button class="clear-all-btn" onclick="window.clearAllFilters()" data-i18n="clear_all">✕ Limpiar todos</button>
         </div>
         <!-- Filtros -->
         <div class="db-container">
@@ -552,10 +640,10 @@
             </h3>
             <div class="filters-container">
                 <div class="filter-group" style="max-width: 120px;">
-                    <label for="language-select">🌐 Idioma:</label>
+                    <label for="language-select" data-i18n="label_language">🌐 Idioma:</label>
                     <select id="language-select" class="filter-select">
-                        <option value="es">Español</option>
-                        <option value="en">English</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="en">🇬🇧 English</option>
                     </select>
                 </div>
                 <div class="filter-group">
@@ -588,32 +676,32 @@
         <!-- KPI Cards -->
         <div class="kpi-cards">
             <div class="kpi-card ingresos">
-                <h3>Total Ingresos</h3>
+                <h3 data-i18n="kpi_total_ingresos">Total Ingresos</h3>
                 <div id="total-ingresos" class="value">€0,00</div>
                 <div id="trend-ingresos" class="trend" style="display: none;"></div>
-                <small>Suma de ingresos</small>
+                <small data-i18n="kpi_total_ingresos_note">Suma de ingresos</small>
             </div>
             <div class="kpi-card gastos">
-                <h3>Total Gastos</h3>
+                <h3 data-i18n="kpi_total_gastos">Total Gastos</h3>
                 <div id="total-gastos" class="value">€0,00</div>
                 <div id="trend-gastos" class="trend" style="display: none;"></div>
-                <small>Suma de gastos</small>
+                <small data-i18n="kpi_total_gastos_note">Suma de gastos</small>
             </div>
             <div class="kpi-card per-home">
-                <h3>Total Per Home</h3>
+                <h3 data-i18n="kpi_total_per_home">Total Per Home</h3>
                 <div id="total-per-home" class="value">€0,00</div>
                 <div id="trend-per-home" class="trend" style="display: none;"></div>
-                <small>Gastos per home</small>
+                <small data-i18n="kpi_total_per_home_note">Gastos per home</small>
             </div>
             <div class="kpi-card balance">
-                <h3>Balance Actual</h3>
+                <h3 data-i18n="kpi_balance_actual">Balance Actual</h3>
                 <div id="saldo-final" class="value">€0,00</div>
-                <small>Saldo más reciente (global)</small>
+                <small data-i18n="kpi_balance_actual_note">Saldo más reciente (global)</small>
             </div>
             <div class="kpi-card transacciones">
-                <h3>Transacciones</h3>
+                <h3 data-i18n="kpi_transacciones">Transacciones</h3>
                 <div id="total-transacciones" class="value">0</div>
-                <small>Registros procesados</small>
+                <small data-i18n="kpi_transacciones_note">Registros procesados</small>
             </div>
         </div>
 
@@ -623,6 +711,12 @@
                 <h3 class="db-container-title">
                     <span data-i18n="monthly_movements">📈 Movimientos bancarios mensuales</span>
                     <small style="font-size: 11px; font-weight: normal; opacity: 0.7;" data-i18n="click_points">(Click en puntos para filtrar por mes)</small>
+                    <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+                        <button id="monthly-confirm-icon" class="icon-btn icon-confirm" title="Confirmar selección" onclick="window.applyPendingSelection()" aria-label="Confirmar selección">✓</button>
+                        <button id="monthly-cancel-icon" class="icon-btn icon-cancel" title="Cancelar selección" onclick="window.clearPendingSelection()" aria-label="Cancelar selección">
+                            <svg viewBox="0 0 24 24" width="12" height="12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.9 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.9a1 1 0 0 0 1.41-1.41L13.41 12l4.9-4.89a1 1 0 0 0 0-1.4z"/></svg>
+                        </button>
+                    </div>
                 </h3>
                 <div class="chart-wrapper">
                     <canvas id="monthly-flow-chart"></canvas>
@@ -632,18 +726,31 @@
             <div class="chart-grid-double">
                 <div class="db-container">
                     <h3 class="db-container-title">
-                        <span data-i18n="top_movements">🏆 Top 5 Movimientos</span>
-                        <small style="font-size: 11px; font-weight: normal; opacity: 0.7;" data-i18n="highest_moves">(Mayores ingresos o gastos)</small>
-                    </h3>
+                            <span data-i18n="top_movements">🏆 Top Movimientos por categoría</span>
+                            <small style="font-size: 11px; font-weight: normal; opacity: 0.7;" data-i18n="highest_moves">(Mayores ingresos o gastos)</small>
+                            <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+                                <button id="top-confirm-icon" class="icon-btn icon-confirm" title="Confirmar selección" onclick="window.applyPendingSelection()" aria-label="Confirmar selección">✓</button>
+                                <button id="top-cancel-icon" class="icon-btn icon-cancel" title="Cancelar selección" onclick="window.clearPendingSelection()" aria-label="Cancelar selección">
+                                    <svg viewBox="0 0 24 24" width="12" height="12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.9 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.9a1 1 0 0 0 1.41-1.41L13.41 12l4.9-4.89a1 1 0 0 0 0-1.4z"/></svg>
+                                </button>
+                            </div>
+                        </h3>
                     <div id="top-movements-table" style="overflow-x: auto;">
                         <!-- La tabla se generará aquí -->
                     </div>
+                    
                 </div>
                 
                 <div class="db-container">
                     <h3 class="db-container-title">
                         <span data-i18n="expenses_by_category">📊 Gastos por categoría</span>
                         <small style="font-size: 11px; font-weight: normal; opacity: 0.7;" data-i18n="click_to_filter">(Click para filtrar)</small>
+                        <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+                            <button id="expenses-confirm-icon" class="icon-btn icon-confirm" title="Confirmar selección" onclick="window.applyPendingSelection()" aria-label="Confirmar selección">✓</button>
+                            <button id="expenses-cancel-icon" class="icon-btn icon-cancel" title="Cancelar selección" onclick="window.clearPendingSelection()" aria-label="Cancelar selección">
+                                <svg viewBox="0 0 24 24" width="12" height="12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.9 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.9a1 1 0 0 0 1.41-1.41L13.41 12l4.9-4.89a1 1 0 0 0 0-1.4z"/></svg>
+                            </button>
+                        </div>
                     </h3>
                     <div class="chart-wrapper">
                         <canvas id="expenses-chart"></canvas>
@@ -654,16 +761,34 @@
 
         <!-- Category Summary Table -->
         <div class="db-container">
-            <h3 class="db-container-title" data-i18n="category_summary">📋 Resumen por categorías</h3>
+            <h3 class="db-container-title">
+                <span data-i18n="category_summary">📋 Resumen por categorías</span>
+                <small style="font-size: 11px; font-weight: normal; opacity: 0.7;" data-i18n="click_to_filter">(Click para filtrar)</small>
+                <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+                    <button id="cat-confirm-icon" class="icon-btn icon-confirm" title="Confirmar selección" onclick="window.applyPendingSelection()" aria-label="Confirmar selección">✓</button>
+                    <button id="cat-cancel-icon" class="icon-btn icon-cancel" title="Cancelar selección" onclick="window.clearPendingSelection()" aria-label="Cancelar selección">
+                        <svg viewBox="0 0 24 24" width="12" height="12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.9 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.9a1 1 0 0 0 1.41-1.41L13.41 12l4.9-4.89a1 1 0 0 0 0-1.4z"/></svg>
+                    </button>
+                </div>
+            </h3>
             <div style="overflow-x: auto;">
                 <div id="category-summary-table"></div>
             </div>
+            
         </div>
 
         <!-- All Transactions -->
         <div class="db-container">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 class="db-container-title" style="margin-bottom: 0;" data-i18n="all_transactions">💳 Todas las transacciones</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 class="db-container-title" style="margin-bottom: 0;">
+                    <span data-i18n="all_transactions">💳 Todas las transacciones</span>
+                    <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+                        <button id="all-confirm-icon" class="icon-btn icon-confirm" title="Confirmar selección" onclick="window.applyPendingSelection()" aria-label="Confirmar selección">✓</button>
+                        <button id="all-cancel-icon" class="icon-btn icon-cancel" title="Cancelar selección" onclick="window.clearPendingSelection()" aria-label="Cancelar selección">
+                            <svg viewBox="0 0 24 24" width="12" height="12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.9 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.9a1 1 0 0 0 1.41-1.41L13.41 12l4.9-4.89a1 1 0 0 0 0-1.4z"/></svg>
+                        </button>
+                    </div>
+                </h3>
                 <button class="action-btn" style="margin: 0;" onclick="window.exportToCSV()" data-i18n="export_csv">
                     📊 Exportar CSV
                 </button>
@@ -680,14 +805,20 @@
             <div id="pagination" class="pagination"></div>
         </div>
 
-        <div id="loading">
-            Cargando datos financieros... ⏳
-        </div>
+        <div id="loading" data-i18n="loading_data">Cargando datos financieros... ⏳</div>
         <div id="error"></div>
         
         <!-- Floating Action Button -->
-        <button id="clear-filters-fab" class="fab" title="Limpiar todos los filtros" onclick="window.clearAllFilters()">
-            ✕
+        <button id="clear-filters-fab" class="fab" title="" onclick="window.clearAllFilters()" data-i18n="clear_all_title">
+            <span class="fab-icon" aria-hidden="true">
+                <!-- simple funnel icon -->
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">
+                    <path d="M3 5h18v2l-7 7v5l-4 2v-7L3 7V5z" />
+                </svg>
+            </span>
+            <span class="fab-x" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="14" height="14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.9 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.9a1 1 0 0 0 1.41-1.41L13.41 12l4.9-4.89a1 1 0 0 0 0-1.4z"/></svg>
+            </span>
         </button>
     </div>
 
@@ -706,7 +837,7 @@
                     'filters': '🔍 Filtros',
                     'monthly_movements': '📈 Movimientos bancarios mensuales',
                     'click_points': '(Click en puntos para filtrar por mes)',
-                    'top_movements': '🏆 Top 5 Movimientos',
+                    'top_movements': '🏆 Top Movimientos por categoría',
                     'highest_moves': '(Mayores ingresos o gastos)',
                     'expenses_by_category': '📊 Gastos por categoría',
                     'click_to_filter': '(Click para filtrar)',
@@ -733,7 +864,7 @@
                     'type': 'Tipo',
                     'income': 'Ingreso',
                     'expense': 'Gasto',
-                    'count': 'Count',
+                    'count': 'Cantidad',
                     'expenses_sum': 'Suma Gastos',
                     'total_percent': '% del Total',
                     'total': 'TOTAL',
@@ -741,6 +872,19 @@
                     // Disclaimer
                     'important_note': 'Nota importante:',
                     'disclaimer_text': 'Los saldos bancarios no incluye las facturas pendientes (impagadas o sin registrar). El reparto de gastos \'Per Home\' es un promedio simple (total de gastos / 160) y no considera el coeficiente de participación específico de cada propietario.'
+                ,
+                'active_filters': 'Filtros activos:',
+                'clear_all': '✕ Limpiar todos',
+                'clear_all_title': '✖️',
+                'loading_data': 'Cargando datos financieros... ⏳',
+                'no_movements': 'No hay movimientos para mostrar.',
+                'export_csv': '📊 Exportar CSV',
+                'search_by_concept': 'Buscar por concepto...',
+                'last_update': 'Última actualización:',
+                'page': 'Página',
+                'of': 'de',
+                'records': 'registros',
+                'no_data_export': 'No hay datos para exportar'
                 },
                 en: {
                     // Section titles
@@ -782,8 +926,52 @@
                     // Disclaimer
                     'important_note': 'Important note:',
                     'disclaimer_text': 'Bank balances do not include pending invoices (unpaid or unregistered). The \'Per Home\' expense distribution is a simple average (total expenses / 160) and does not consider the specific participation coefficient of each owner.'
+                ,
+                'active_filters': 'Active filters:',
+                'clear_all': '✕ Clear all',
+                'clear_all_title': '✖️',
+                'loading_data': 'Loading financial data... ⏳',
+                'no_movements': 'No movements to display.',
+                'export_csv': '📊 Export CSV',
+                'search_by_concept': 'Search by concept...',
+                'last_update': 'Last Update:',
+                'page': 'Page',
+                'of': 'of',
+                'records': 'records',
+                'no_data_export': 'No data to export'
                 }
             };
+
+            // Add KPI translation keys
+            translations.es.kpi_total_ingresos = 'Total Ingresos';
+            translations.es.kpi_total_ingresos_note = 'Suma de ingresos';
+            translations.es.kpi_total_gastos = 'Total Gastos';
+            translations.es.kpi_total_gastos_note = 'Suma de gastos';
+            translations.es.kpi_total_per_home = 'Total Per Home';
+            translations.es.kpi_total_per_home_note = 'Gastos per home';
+            translations.es.kpi_balance_actual = 'Balance Actual';
+            translations.es.kpi_balance_actual_note = 'Saldo más reciente (global)';
+            translations.es.kpi_transacciones = 'Transacciones';
+            translations.es.kpi_transacciones_note = 'Registros procesados';
+            translations.es.label_language = '🌐 Idioma:';
+
+            translations.en.kpi_total_ingresos = 'Total Income';
+            translations.en.kpi_total_ingresos_note = 'Sum of income';
+            translations.en.kpi_total_gastos = 'Total Expenses';
+            translations.en.kpi_total_gastos_note = 'Sum of expenses';
+            translations.en.kpi_total_per_home = 'Total Per Home';
+            translations.en.kpi_total_per_home_note = 'Per-home expenses';
+            translations.en.kpi_balance_actual = 'Current Balance';
+            translations.en.kpi_balance_actual_note = 'Most recent balance (global)';
+            translations.en.kpi_transacciones = 'Transactions';
+            translations.en.kpi_transacciones_note = 'Processed records';
+            translations.en.label_language = '🌐 Language:';
+
+            // Title
+            translations.es.dashboard_title = 'Dashboard Financiero';
+            translations.en.dashboard_title = 'Finance Dashboard';
+            translations.es.dashboard_subtitle = 'Resumen financiero y análisis de la cuenta bancaria';
+            translations.en.dashboard_subtitle = 'Financial summary and analysis of the bank statements';
 
             let currentLanguage = localStorage.getItem('dashboardLanguage') || 'es';
             
@@ -791,7 +979,9 @@
             let financialData = [];
             let currentFilter = 'current_year';
             let selectedCategories = new Set();
+            let pendingSelectedCategories = new Set(); // selections staged before confirming
             let selectedMonths = new Set();
+            let pendingSelectedMonths = new Set(); // months staged before confirming
             let startDate = null;
             let endDate = null;
             let searchQuery = '';
@@ -1038,10 +1228,10 @@
                             label: 'Gastos (€)',
                             data: data.map(([, value]) => value),
                             backgroundColor: data.map(([label]) => 
-                                selectedCategories.has(label) ? hexToRgba(chartColors.balance, 0.8) : 'rgba(52, 73, 94, 0.8)'
+                                selectedCategories.has(label) ? hexToRgba(chartColors.balance, 0.8) : (pendingSelectedCategories.has(label) ? 'rgba(255, 193, 7, 0.9)' : 'rgba(52, 73, 94, 0.8)')
                             ),
                             borderColor: data.map(([label]) => 
-                                selectedCategories.has(label) ? chartColors.balance : 'rgba(52, 73, 94, 1)'
+                                selectedCategories.has(label) ? chartColors.balance : (pendingSelectedCategories.has(label) ? 'rgba(255, 193, 7, 1)' : 'rgba(52, 73, 94, 1)')
                             ),
                             borderWidth: 2
                         }]
@@ -1053,7 +1243,8 @@
                             if (elements.length > 0) {
                                 const index = elements[0].index;
                                 const category = data[index][0];
-                                window.toggleCategory(category);
+                                // stage pending selection (user must confirm)
+                                window.selectPendingCategory(event, category);
                             }
                         },
                         plugins: {
@@ -1101,10 +1292,8 @@
                             backgroundColor: hexToRgba(chartColors.ingresos, 0.1),
                             tension: 0.3,
                             borderWidth: 2,
-                            pointBackgroundColor: last12MonthsData.map(([month]) => 
-                                selectedMonths.has(month) ? chartColors.balance : chartColors.ingresos
-                            ),
-                            pointRadius: last12MonthsData.map(([month]) => selectedMonths.has(month) ? 6 : 4),
+                            pointBackgroundColor: last12MonthsData.map(([month]) => selectedMonths.has(month) ? chartColors.balance : (pendingSelectedMonths.has(month) ? '#ffc107' : chartColors.ingresos)),
+                            pointRadius: last12MonthsData.map(([month]) => selectedMonths.has(month) ? 6 : (pendingSelectedMonths.has(month) ? 5 : 4)),
                         }, {
                             label: 'Gastos',
                             data: last12MonthsData.map(([, values]) => values.gastos),
@@ -1112,10 +1301,8 @@
                             backgroundColor: hexToRgba(chartColors.gastos, 0.1),
                             tension: 0.3,
                             borderWidth: 2,
-                                pointBackgroundColor: last12MonthsData.map(([month]) => 
-                                selectedMonths.has(month) ? chartColors.balance : chartColors.gastos
-                            ),
-                            pointRadius: last12MonthsData.map(([month]) => selectedMonths.has(month) ? 6 : 4),
+                                pointBackgroundColor: last12MonthsData.map(([month]) => selectedMonths.has(month) ? chartColors.balance : (pendingSelectedMonths.has(month) ? '#ffc107' : chartColors.gastos)),
+                            pointRadius: last12MonthsData.map(([month]) => selectedMonths.has(month) ? 6 : (pendingSelectedMonths.has(month) ? 5 : 4)),
                         }, {
                             label: 'per Home',
                             data: last12MonthsData.map(([, values]) => values.perHome),
@@ -1123,10 +1310,8 @@
                             backgroundColor: hexToRgba(chartColors.perHome, 0.1),
                             tension: 0.3,
                             borderWidth: 2,
-                                pointBackgroundColor: last12MonthsData.map(([month]) => 
-                                selectedMonths.has(month) ? chartColors.balance : chartColors.perHome
-                            ),
-                                pointRadius: last12MonthsData.map(([month]) => selectedMonths.has(month) ? 6 : 4),
+                                pointBackgroundColor: last12MonthsData.map(([month]) => selectedMonths.has(month) ? chartColors.balance : (pendingSelectedMonths.has(month) ? '#ffc107' : chartColors.perHome)),
+                            pointRadius: last12MonthsData.map(([month]) => selectedMonths.has(month) ? 6 : (pendingSelectedMonths.has(month) ? 5 : 4)),
                             yAxisID: 'y1'
                         }, {
                             label: 'Saldo Mínimo',
@@ -1135,10 +1320,8 @@
                             backgroundColor: hexToRgba(chartColors.saldoMinimo, 0.1),
                             tension: 0.3,
                             borderWidth: 2,
-                                pointBackgroundColor: last12MonthsData.map(([month]) => 
-                                selectedMonths.has(month) ? chartColors.balance : chartColors.saldoMinimo
-                            ),
-                            pointRadius: last12MonthsData.map(([month]) => selectedMonths.has(month) ? 6 : 4),
+                            pointBackgroundColor: last12MonthsData.map(([month]) => selectedMonths.has(month) ? chartColors.balance : (pendingSelectedMonths.has(month) ? '#ffc107' : chartColors.saldoMinimo)),
+                            pointRadius: last12MonthsData.map(([month]) => selectedMonths.has(month) ? 6 : (pendingSelectedMonths.has(month) ? 5 : 4)),
                         }]
                     },
                     options: {
@@ -1148,7 +1331,7 @@
                             if (elements.length > 0) {
                                 const index = elements[0].index;
                                 const monthKey = last12MonthsData[index][0];
-                                window.toggleMonth(monthKey);
+                                window.selectPendingMonth(event, monthKey);
                             }
                         },
                         plugins: {
@@ -1193,7 +1376,7 @@
                 const tableContainer = document.getElementById('top-movements-table');
                 
                 if (!data || data.length === 0) {
-                    tableContainer.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">No hay movimientos para mostrar.</p>';
+                    tableContainer.innerHTML = `<p style="text-align:center; color: var(--text-secondary);">${translate('no_movements')}</p>`;
                     return;
                 }
 
@@ -1215,8 +1398,10 @@
                     const amount = item.amount;
                     const perHome = parseAmount(item['per Home'] || '0');
                     const amountClass = amount >= 0 ? 'color-ingresos' : 'color-gastos';
+                    const isPending = pendingSelectedCategories.has(item.Categoria || 'Sin categoría');
+                    const pendingClass = isPending ? 'pending-selected' : '';
                     
-                    tableHTML += `<tr>
+                    tableHTML += `<tr class="${pendingClass}" onclick="window.selectPendingCategory(event, '${(item.Categoria||'Sin categoría').replace(/'/g, "\\'")}')">
                         <td class="color-secondary">${fechaStr}</td>
                         <td class="color-secondary">${item.Categoria || 'Sin categoría'}</td>
                         <td>${item.Concepto || ''}</td>
@@ -1259,7 +1444,9 @@
                     const percentage = totalGastos > 0 ? ((stats.total / totalGastos) * 100).toFixed(1) : '0.0';
                     const isSelected = selectedCategories.has(category);
                     const rowClass = 'interactive-row' + (isSelected ? ' selected' : '');
-                    tableHTML += `<tr class="${rowClass}" onclick="window.toggleCategory('${category.replace(/'/g, "\\'")}')">
+                  const isPending = pendingSelectedCategories.has(category);
+                  const pendingClass = isPending ? 'pending-selected' : '';
+                      tableHTML += `<tr class="${rowClass} ${pendingClass}" onclick="window.selectPendingCategory(event, '${category.replace(/'/g, "\\'")}')">
                         <td style="font-weight: 500;">${category}</td>
                         <td class="text-center">${stats.count}</td>
                         <td class="text-right color-gastos" style="font-weight: 500;">${formatCurrency(stats.total)}</td>
@@ -1269,7 +1456,7 @@
                  });
                 tableHTML += `</tbody><tfoot>
                     <tr>
-                        <td>TOTAL</td>
+                        <td>${translate('total')}</td>
                         <td class="text-center">${totalTransactions}</td>
                         <td class="text-right">${formatCurrency(totalGastos)}</td>
                         <td class="text-right">${formatCurrency(totalPerHomeGeneral)}</td>
@@ -1356,6 +1543,111 @@
                 updatePagination(totalPages, filteredData.length);
             }
 
+            // --- Pending selection flow ---
+            window.selectPendingCategory = function(event, category) {
+                // toggle pending selection
+                if (pendingSelectedCategories.has(category)) {
+                    pendingSelectedCategories.delete(category);
+                } else {
+                    pendingSelectedCategories.add(category);
+                }
+                updatePendingSelectionUI();
+            };
+
+            // stage month selection (used by monthly chart points)
+            window.selectPendingMonth = function(event, monthKey) {
+                if (pendingSelectedMonths.has(monthKey)) {
+                    pendingSelectedMonths.delete(monthKey);
+                } else {
+                    pendingSelectedMonths.add(monthKey);
+                }
+                updatePendingSelectionUI();
+            };
+
+            // Expose applyPendingSelection so header buttons (which call window.applyPendingSelection)
+            // can trigger the action from inline onclick attributes.
+            window.applyPendingSelection = function() {
+                // apply pending categories and months
+                let applied = false;
+                if (pendingSelectedCategories.size > 0) {
+                    selectedCategories = new Set([...pendingSelectedCategories]);
+                    pendingSelectedCategories.clear();
+                    applied = true;
+                }
+                if (pendingSelectedMonths.size > 0) {
+                    selectedMonths = new Set([...pendingSelectedMonths]);
+                    pendingSelectedMonths.clear();
+                    applied = true;
+                }
+                if (applied) updateCharts();
+                updatePendingSelectionUI();
+            };
+
+            // Expose clearPendingSelection so header buttons can call it.
+            // This function will clear staged (pending) selections and also
+            // deselect any applied category filters (selectedCategories), then refresh the dashboard.
+            window.clearPendingSelection = function() {
+                // clear staged selections (pending) and also clear applied selections
+                pendingSelectedCategories.clear();
+                pendingSelectedMonths.clear();
+                // Clear applied selections too
+                selectedCategories.clear();
+                selectedMonths.clear();
+                updateCharts();
+                updatePendingSelectionUI();
+            };
+
+            function updatePendingSelectionUI() {
+                // re-render tables so pending selections get highlighted and per-table confirm buttons appear
+                // we re-run updateCharts to regenerate tables — but avoid applying pending as filters
+                const filteredData = getFilteredData();
+                Chart.helpers.each(Chart.instances, instance => instance.destroy());
+
+                const expensesByCategory = getExpensesByCategory(filteredData);
+                if (expensesByCategory.length > 0) createBarChart('expenses-chart', expensesByCategory);
+
+                const topMovements = getTopMovements(filteredData);
+                createTopMovementsTable(topMovements);
+
+                const monthlyFlow = getMonthlyFlow(filteredData);
+                if (monthlyFlow.length > 0) createLineChart('monthly-flow-chart', monthlyFlow);
+
+                createCategorySummaryTable(filteredData);
+                currentPage = 1;
+                createAllTransactionsTable(filteredData);
+
+                // per-section confirm buttons
+                const topConfirm = document.getElementById('top-confirm-icon');
+                const catConfirm = document.getElementById('cat-confirm-icon');
+                const monthlyConfirm = document.getElementById('monthly-confirm-icon');
+                const expensesConfirm = document.getElementById('expenses-confirm-icon');
+                const allConfirm = document.getElementById('all-confirm-icon');
+
+                const hasPendingCategory = pendingSelectedCategories.size > 0;
+                const hasPendingMonth = pendingSelectedMonths.size > 0;
+                const hasAnyPending = hasPendingCategory || hasPendingMonth;
+
+                [topConfirm, catConfirm, monthlyConfirm, expensesConfirm, allConfirm].forEach(btn => {
+                    if (!btn) return;
+                    // enable confirm only if there's at least one pending (category or month)
+                    btn.disabled = !hasAnyPending;
+                });
+
+                // Show or hide the header icon buttons depending on whether there are pending selections
+                const topCancel = document.getElementById('top-cancel-icon');
+                const catCancel = document.getElementById('cat-cancel-icon');
+                const monthlyCancel = document.getElementById('monthly-cancel-icon');
+                const expensesCancel = document.getElementById('expenses-cancel-icon');
+                const allCancel = document.getElementById('all-cancel-icon');
+                const displayStyle = hasAnyPending ? 'inline-flex' : 'none';
+                [topConfirm, topCancel, catConfirm, catCancel, monthlyConfirm, monthlyCancel, expensesConfirm, expensesCancel, allConfirm, allCancel].forEach(el => {
+                    if (!el) return;
+                    el.style.display = displayStyle;
+                });
+            }
+
+            // Note: FAB menu removed; FAB now calls clearAllFilters (restores previous behavior)
+
              function updatePagination(totalPages, totalItems) {
                 const paginationContainer = document.getElementById('pagination');
                 
@@ -1390,30 +1682,33 @@
                 let badgesHTML = '';
                 
                 if (currentFilter !== 'current_year' && !startDate && !endDate) {
-                    const filterNames = {
-                        'current_month': 'Mes actual', 'last_3_months': 'Últimos 3 meses', 'last_6_months': 'Últimos 6 meses',
-                        'last_12_months': 'Últimos 12 meses', 'all': 'Todos los datos'
+                    const filterMap = {
+                        'current_month': 'current_month',
+                        'last_3_months': 'last_3_months',
+                        'last_6_months': 'last_6_months',
+                        'last_12_months': 'last_12_months',
+                        'all': 'all_data'
                     };
-                    if (filterNames[currentFilter]) {
-                        badgesHTML += `<span class="filter-badge">📅 ${filterNames[currentFilter]}</span>`;
+                    if (filterMap[currentFilter]) {
+                        badgesHTML += `<span class="filter-badge">📅 ${translate(filterMap[currentFilter])}</span>`;
                     }
                 }
                 
                 if (startDate || endDate) {
                     const start = startDate ? new Date(startDate).toLocaleDateString('es-ES', { year: 'numeric', month: 'short' }) : '...';
                     const end = endDate ? new Date(endDate).toLocaleDateString('es-ES', { year: 'numeric', month: 'short' }) : '...';
-                    badgesHTML += `<span class="filter-badge">📆 ${start} - ${end} <span class="remove" onclick="window.clearDateRange()">✕</span></span>`;
+                    badgesHTML += `<span class="filter-badge">📆 ${start} - ${end} <span class="remove" onclick="window.clearDateRange()"><svg viewBox="0 0 24 24" width="12" height="12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.9 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.9a1 1 0 0 0 1.41-1.41L13.41 12l4.9-4.89a1 1 0 0 0 0-1.4z"/></svg></span></span>`;
                 }
                 
                 selectedCategories.forEach(cat => {
-                    badgesHTML += `<span class="filter-badge">🏷️ ${cat} <span class="remove" onclick="window.toggleCategory('${cat.replace(/'/g, "\\'")}')">✕</span></span>`;
+                    badgesHTML += `<span class="filter-badge">🏷️ ${cat} <span class="remove" onclick="window.toggleCategory('${cat.replace(/'/g, "\\'")}')"><svg viewBox="0 0 24 24" width="12" height="12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.9 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.9a1 1 0 0 0 1.41-1.41L13.41 12l4.9-4.89a1 1 0 0 0 0-1.4z"/></svg></span></span>`;
                 });
                 
                 selectedMonths.forEach(month => {
                     const [year, monthNum] = month.split('-');
                     const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
                     const monthName = monthNames[parseInt(monthNum) - 1];
-                    badgesHTML += `<span class="filter-badge">📊 ${monthName} ${year} <span class="remove" onclick="window.toggleMonth('${month}')">✕</span></span>`;
+                    badgesHTML += `<span class="filter-badge">📊 ${monthName} ${year} <span class="remove" onclick="window.toggleMonth('${month}')"><svg viewBox="0 0 24 24" width="12" height="12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.9 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.9a1 1 0 0 0 1.41-1.41L13.41 12l4.9-4.89a1 1 0 0 0 0-1.4z"/></svg></span></span>`;
                 });
                 
                 badgesContainer.innerHTML = badgesHTML;
@@ -1432,8 +1727,8 @@
                 if (financialData.length > 0) {
                     const lastUpdateDate = parseDate(financialData[0]['F. Operativa']);
                     if (lastUpdateDate) {
-                        const formattedDate = lastUpdateDate.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
-                        document.getElementById('last-update-date').textContent = `Last Update: ${formattedDate}`;
+                        const formattedDate = lastUpdateDate.toLocaleDateString(currentLanguage === 'en' ? 'en-GB' : 'es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+                        document.getElementById('last-update-date').textContent = `${translate('last_update')} ${formattedDate}`;
                     }
                 }
 
@@ -1456,6 +1751,8 @@
                 createCategorySummaryTable(filteredData);
                 currentPage = 1;
                 createAllTransactionsTable(filteredData);
+                // Keep pending selection UI in sync (show/hide header icons)
+                updatePendingSelectionUI();
             }
 
             // --- INICIALIZACIÓN ---
@@ -1497,6 +1794,28 @@
                     selectedCategories.add(category);
                 }
                 updateCharts();
+            };
+
+            // Enhanced click handler for category interactions from tables/charts.
+            // - Ctrl/Cmd (metaKey) or Ctrl: toggle add/remove without affecting other selections
+            // - Shift: select only the clicked category (clears others)
+            // - Default click: toggle (add/remove) allowing multiple selections
+            window.handleCategoryClick = function(event, category) {
+                try {
+                    // Ctrl/Cmd + click => multi-select toggle (add/remove without clearing others)
+                    if (event && (event.metaKey || event.ctrlKey)) {
+                        window.toggleCategory(category);
+                        return;
+                    }
+
+                    // Shift or plain click => select only this category (clear others)
+                    selectedCategories.clear();
+                    selectedCategories.add(category);
+                    updateCharts();
+                } catch (err) {
+                    // fallback to simple toggle
+                    window.toggleCategory(category);
+                }
             };
 
             window.toggleMonth = function(monthKey) {
@@ -1551,7 +1870,7 @@
 
             window.exportToCSV = function() {
                 const data = getFilteredData();
-                if (data.length === 0) { alert('No hay datos para exportar'); return; }
+                if (data.length === 0) { alert(translate('no_data_export')); return; }
                 const headers = ['Tipo', 'F. Operativa', 'Concepto', 'Categoria', 'Mes Año', 'Gastos', 'Ingresos', 'per Home', 'Saldo'];
                 const csvContent = [
                     headers.join(','),
@@ -1617,6 +1936,22 @@
                     element.textContent = translate(key);
                 });
 
+                // Update placeholders, titles and button labels not covered by data-i18n attributes
+                const searchInput = document.getElementById('transaction-search');
+                if (searchInput) searchInput.placeholder = translate('search_by_concept');
+
+                const fab = document.getElementById('clear-filters-fab');
+                if (fab) fab.title = translate('clear_all_title');
+
+                // Dashboard title (not using data-i18n directly to preserve layout)
+                const dashTitle = document.getElementById('dashboard-title');
+                if (dashTitle) dashTitle.textContent = translate('dashboard_title');
+                const dashSubtitle = document.getElementById('dashboard-subtitle');
+                if (dashSubtitle) dashSubtitle.textContent = translate('dashboard_subtitle');
+
+                const exportBtn = document.querySelector('[data-i18n="export_csv"]');
+                if (exportBtn) exportBtn.textContent = translate('export_csv');
+
                 // Forzar actualización de tablas para actualizar encabezados
                 updateCharts();
             }
@@ -1627,6 +1962,9 @@
 
             // Establecer el idioma inicial
             document.getElementById('language-select').value = currentLanguage;
+
+            // Apply translations immediately
+            updateLanguage(currentLanguage);
 
             loadData();
         })();
